@@ -1,0 +1,7 @@
+{
+  "name": "@jvdneut/xml-parser",
+  "version": "1.0.0",
+  "main": "xmlParser.js",
+  "author": "Jeroen van der Neut <jeroen@amn.nl>",
+  "license": "MIT"
+}
