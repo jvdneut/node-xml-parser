@@ -9,7 +9,7 @@ const reSelfClosingTag = /\/>$/;
 const reClosingTag = /^<\//;
 
 const reIsCData = /^<!\[CDATA\[([\S\s]*?)\]\]>$/;
-const reElementAttributes = /<\/?([a-z]+)([^<>]*)\/?>/i;
+const reElementAttributes = /<\/?(\S+)([^<>]*)\/?>/i;
 const reAttributeKeyValueRepeat = /\s*(\S+)="([^"]+)"/g;
 const reAttributeKeyValue = /\s*(\S+)="([^"]+)"/;
 const reIsWhiteSpace = /^\s*$/;

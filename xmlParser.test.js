@@ -237,3 +237,35 @@ describe('Entities replacement', () => {
 		expect(actual).toBe(expected);
 	});
 });
+
+describe('Parse', () => {
+	test('Namespace prefixes should be handled as other nodes', () => {
+		const input =
+			'<ac:link><ri:attachment ri:filename="Interne audit ISO 27001 AMN 5 juni 2019.xlsx" /><ac:plain-text-link-body><![CDATA[Interne audit ISO 27001 AMN 5 juni 2019]] ></ac:plain-text-link-body></ac:link>';
+		const actual = parse(input);
+		const expected = [
+			{
+				attributes: {},
+				children: [
+					{
+						attributes: {
+							'ri:filename': 'Interne audit ISO 27001 AMN 5 juni 2019.xlsx',
+						},
+						children: [],
+						name: 'ri:attachment',
+					},
+					{
+						attributes: {},
+						children: [
+							{ attributes: {}, children: [], name: '![CDATA[Interne' },
+						],
+						name: 'ac:plain-text-link-body',
+					},
+				],
+				name: 'ac:link',
+			},
+		];
+
+		expect(actual).toEqual(expected);
+	});
+});
