@@ -98,9 +98,6 @@ const buildHierarchy = (tokens, parents) =>
 				parents.push(tag);
 			}
 		} else {
-			if(token.length > 200) {
-				console.log({token});
-			}
 			parent.children.push(replaceEntities(token));
 		}
 	});
