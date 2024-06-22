@@ -1,10 +1,10 @@
-const parse = require('./xmlParser');
-const {
+import { describe, test, expect } from 'vitest';
+import parse, {
 	tokenize,
 	parseTokens,
 	replaceEntity,
 	replaceEntities,
-} = require('./xmlParser');
+} from './xmlParser';
 
 describe('(internal) Tokenizer', () => {
 	test('Tokenizes `<br />` correctly', () => {

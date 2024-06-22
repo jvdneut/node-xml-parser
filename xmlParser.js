@@ -1,5 +1,7 @@
-/* eslint no-unused-vars: 0 */
-const not = fn => (...args) => !fn(...args);
+const not =
+	fn =>
+	(...args) =>
+		!fn(...args);
 const isNull = x => x === null;
 
 const reTokens = /<!\[CDATA\[[\S\s]*?\]\]>|[^<>]+|<[^<>]+>/g;
@@ -20,7 +22,7 @@ const getCharCode = entity => {
 	}
 	return parseInt(entity, 10);
 };
-const replaceEntity = entity => {
+export const replaceEntity = entity => {
 	switch (entity[1]) {
 		case '#': {
 			const charCode = getCharCode(entity.substr(2));
@@ -44,7 +46,7 @@ const replaceEntity = entity => {
 	}
 };
 
-const replaceEntities = s => s.replace(/&[^;]+;/g, replaceEntity);
+export const replaceEntities = s => s.replace(/&[^;]+;/g, replaceEntity);
 
 const getAttributes = s => {
 	const matches = s.match(reAttributeKeyValueRepeat) || [];
@@ -69,9 +71,9 @@ const getElement = s => {
 	};
 };
 
-const tokenize = xml => xml.match(reTokens);
+export const tokenize = xml => xml.match(reTokens);
 
-const buildHierarchy = (tokens, parents) =>
+export const buildHierarchy = (tokens, parents) =>
 	tokens.forEach(token => {
 		const parent = parents[parents.length - 1];
 
@@ -102,7 +104,7 @@ const buildHierarchy = (tokens, parents) =>
 		}
 	});
 
-const parseTokens = tokens => {
+export const parseTokens = tokens => {
 	const root = { children: [] };
 	const parents = [root];
 
@@ -111,7 +113,7 @@ const parseTokens = tokens => {
 	return root.children;
 };
 
-const stripWhitespace = node => {
+export const stripWhitespace = node => {
 	if (typeof node === 'string' && reIsWhiteSpace.test(node)) {
 		return null;
 	} else if (node.children) {
@@ -124,7 +126,7 @@ const stripWhitespace = node => {
 	return node;
 };
 
-const parser = (xml, ignoreWhitespace = false) => {
+export const parser = (xml, ignoreWhitespace = false) => {
 	const tokens = tokenize(xml);
 	const parsed = parseTokens(tokens);
 	if (ignoreWhitespace) {
@@ -133,10 +135,4 @@ const parser = (xml, ignoreWhitespace = false) => {
 	return parsed;
 };
 
-module.exports = parser;
-module.exports.replaceEntity = replaceEntity;
-module.exports.replaceEntities = replaceEntities;
-module.exports.tokenize = tokenize;
-module.exports.buildHierarchy = buildHierarchy;
-module.exports.parseTokens = parseTokens;
-module.exports.stripWhitespace = stripWhitespace;
+export default parser;
