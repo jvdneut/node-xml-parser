@@ -11,9 +11,10 @@ const reSelfClosingTag = /\/>$/;
 const reClosingTag = /^<\//;
 
 const reIsCData = /^<!\[CDATA\[([\S\s]*?)\]\]>$/;
-const reElementAttributes = /<\/?(\S+)([^<>]*)\/?>/i;
-const reAttributeKeyValueRepeat = /\s*(\S+)="([^"]+)"/g;
-const reAttributeKeyValue = /\s*(\S+)="([^"]+)"/;
+const reElementAttributes = /<\/?(\S+)([^<>]*?)\/?>/i;
+//const reAttributeKeyValueRepeat = /\s*(\S+)="([^"]+)"/g;
+const reAttributeKeyValueRepeat = /\s*(\S+)=("[^"]+"|{[^}]+})/g;
+//const reAttributeKeyValue = /\s*(\S+)="([^"]+)"/;
 const reIsWhiteSpace = /^\s*$/;
 
 const getCharCode = entity => {
@@ -48,15 +49,37 @@ export const replaceEntity = entity => {
 
 export const replaceEntities = s => s.replace(/&[^;]+;/g, replaceEntity);
 
-const getAttributes = s => {
+export const getAttributes = s => {
+	const reAttributes = /\s+([a-z:]+(={[^}]+[}]+|'[^']+'|="[^"]+"|(?=\s+)))/gi;
+	const matches = s.match(reAttributes) || [];
+	return matches.reduce((result, attribute) => {
+		let [key, value] = attribute.split('=');
+		key = key.trim();
+		if (!key) {
+			// ignore
+		} else if (typeof value === 'undefined') {
+			result[key] = true;
+		} else {
+			result[key] = replaceEntities(value.substring(1, value.length - 1));
+		}
+		return result;
+	}, {});
+};
+
+export const _getAttributes = s => {
 	const matches = s.match(reAttributeKeyValueRepeat) || [];
 	return matches.reduce((result, attribute) => {
-		const [_all, key, value] = reAttributeKeyValue.exec(attribute);
+		const match = reAttributeKeyValueRepeat.exec(attribute);
+		try {
+			const [_all, key, value] = match;
 
-		return {
-			...result,
-			[key]: replaceEntities(value),
-		};
+			return {
+				...result,
+				[key]: replaceEntities(value.substr(1, value.length - 2)),
+			};
+		} catch (e) {
+			console.log({ attribute, match, e });
+		}
 	}, {});
 };
 

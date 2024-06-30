@@ -4,8 +4,39 @@ import parse, {
 	parseTokens,
 	replaceEntity,
 	replaceEntities,
+	getAttributes,
 } from './xmlParser';
 
+describe('attributeParser', () => {
+	test('Parses ` className="classy"` correctly', () => {
+		const input = ' className="classy"';
+		const expected = { className: 'classy' };
+		const actual = getAttributes(input);
+
+		expect(actual).toEqual(expected);
+	});
+	test('Parses ` prop={`hello`}` correctly', () => {
+		const input = ' prop={`hello`}';
+		const expected = { prop: '`hello`' };
+		const actual = getAttributes(input);
+
+		expect(actual).toEqual(expected);
+	});
+
+	test('Parses ` prop={`hello`} other={{ prop: "value" }} hasSomething className="classy"` correctly', () => {
+		const input =
+			' prop={`hello`} other={{ prop: "value" }} hasSomething className="classy"';
+		const expected = {
+			prop: '`hello`',
+			other: `{ prop: "value" }`,
+			hasSomething: true,
+			className: 'classy',
+		};
+		const actual = getAttributes(input);
+
+		expect(actual).toEqual(expected);
+	});
+});
 describe('(internal) Tokenizer', () => {
 	test('Tokenizes `<br />` correctly', () => {
 		const input = '<br />';
@@ -34,6 +65,27 @@ describe('(internal) Tokenizer', () => {
 			'world',
 			'</span>',
 			'</span>',
+		];
+		const actual = tokenize(input);
+
+		expect(actual).toEqual(expected);
+	});
+
+	test('Tokenizes `<Component prop={`hello`}>text</Component>` correctly', () => {
+		const input = '<Component prop={`hello`}>text</Component>';
+		const expected = ['<Component prop={`hello`}>', 'text', '</Component>'];
+		const actual = tokenize(input);
+
+		expect(actual).toEqual(expected);
+	});
+
+	test('Tokenizes `<Component prop={`hello`} hasSomething className="classy">text</Component>` correctly', () => {
+		const input =
+			'<Component prop={`hello`} hasSomething className="classy">text</Component>';
+		const expected = [
+			'<Component prop={`hello`} hasSomething className="classy">',
+			'text',
+			'</Component>',
 		];
 		const actual = tokenize(input);
 
@@ -101,6 +153,29 @@ describe('(internal) tokenParser', () => {
 						],
 					},
 				],
+			},
+		];
+		const actual = parseTokens(tokens);
+
+		expect(actual).toEqual(expected);
+	});
+
+	test.skip('Parses `<Component prop={`hello`} hasSomething className="classy">text</Component>` correctly', () => {
+		const tokens = [
+			'<Component prop={`hello`} other={{ prop: "value" }} hasSomething className="classy">',
+			'text',
+			'</Component>',
+		];
+		const expected = [
+			{
+				name: 'Component',
+				attributes: {
+					prop: '`hello`',
+					other: '{{ prop: "value" }}',
+					hasSomething: true,
+					className: 'classy',
+				},
+				children: ['text'],
 			},
 		];
 		const actual = parseTokens(tokens);
@@ -241,7 +316,7 @@ describe('Entities replacement', () => {
 describe('Parse', () => {
 	test('Namespace prefixes should be handled as other nodes', () => {
 		const input =
-			'<ac:link><ri:attachment ri:filename="Interne audit ISO 27001 AMN 5 juni 2019.xlsx" /><ac:plain-text-link-body><![CDATA[Interne audit ISO 27001 AMN 5 juni 2019]] ></ac:plain-text-link-body></ac:link>';
+			'<ac:link><ri:attachment ri:filename="Interne audit ISO 27001 AMN 5 juni 2019.xlsx" /><ac:plain-text-link-body><![CDATA[Externe audit ISO 27002 AMN 6 juni 2019]]></ac:plain-text-link-body></ac:link>';
 		const actual = parse(input);
 		const expected = [
 			{
@@ -256,9 +331,7 @@ describe('Parse', () => {
 					},
 					{
 						attributes: {},
-						children: [
-							{ attributes: {}, children: [], name: '![CDATA[Interne' },
-						],
+						children: ['Externe audit ISO 27002 AMN 6 juni 2019'],
 						name: 'ac:plain-text-link-body',
 					},
 				],
