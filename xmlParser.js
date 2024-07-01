@@ -46,8 +46,8 @@ export const replaceEntity = entity => {
 
 export const replaceEntities = s => s.replace(/&[^;]+;/g, replaceEntity);
 
-export const getAttributes = (s, { mdx = false } = {}) => {
-	const reAttributes = mdx
+export const getAttributes = (s, { jsx = false } = {}) => {
+	const reAttributes = jsx
 		? /\s+([a-z:]+(={[^}]+[}]+|'[^']+'|="[^"]+"|(?=\s+)))/gi
 		: /\s+([a-z:]+(="[^"]+"))/gi;
 	const matches = s.match(reAttributes) || [];
@@ -78,7 +78,7 @@ const getElement = (s, options) => {
 
 export const tokenize = xml => xml.match(reTokens);
 
-export const buildHierarchy = (tokens, parents, { mdx = false } = {}) =>
+export const buildHierarchy = (tokens, parents, options = {}) =>
 	tokens.forEach(token => {
 		const parent = parents[parents.length - 1];
 
@@ -96,11 +96,11 @@ export const buildHierarchy = (tokens, parents, { mdx = false } = {}) =>
 				// ignore
 			} else if (reSelfClosingTag.test(token)) {
 				// create and move on
-				const tag = getElement(token, { mdx });
+				const tag = getElement(token, options);
 				parent.children.push(tag);
 			} else {
 				// create and make new parent
-				const tag = getElement(token, { mdx });
+				const tag = getElement(token, options);
 				parent.children.push(tag);
 				parents.push(tag);
 			}
@@ -139,5 +139,8 @@ export const parser = (xml, ignoreWhitespace = false, options = {}) => {
 	}
 	return parsed;
 };
+
+export const parseJsx = (xml, ignoreWhitespace = false) =>
+	parser(xml, ignoreWhitespace, { jsx: true });
 
 export default parser;
