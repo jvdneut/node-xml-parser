@@ -12,9 +12,6 @@ const reClosingTag = /^<\//;
 
 const reIsCData = /^<!\[CDATA\[([\S\s]*?)\]\]>$/;
 const reElementAttributes = /<\/?(\S+)([^<>]*?)\/?>/i;
-//const reAttributeKeyValueRepeat = /\s*(\S+)="([^"]+)"/g;
-const reAttributeKeyValueRepeat = /\s*(\S+)=("[^"]+"|{[^}]+})/g;
-//const reAttributeKeyValue = /\s*(\S+)="([^"]+)"/;
 const reIsWhiteSpace = /^\s*$/;
 
 const getCharCode = entity => {
@@ -49,8 +46,10 @@ export const replaceEntity = entity => {
 
 export const replaceEntities = s => s.replace(/&[^;]+;/g, replaceEntity);
 
-export const getAttributes = s => {
-	const reAttributes = /\s+([a-z:]+(={[^}]+[}]+|'[^']+'|="[^"]+"|(?=\s+)))/gi;
+export const getAttributes = (s, { mdx = false } = {}) => {
+	const reAttributes = mdx
+		? /\s+([a-z:]+(={[^}]+[}]+|'[^']+'|="[^"]+"|(?=\s+)))/gi
+		: /\s+([a-z:]+(="[^"]+"))/gi;
 	const matches = s.match(reAttributes) || [];
 	return matches.reduce((result, attribute) => {
 		let [key, value] = attribute.split('=');
@@ -66,26 +65,9 @@ export const getAttributes = s => {
 	}, {});
 };
 
-export const _getAttributes = s => {
-	const matches = s.match(reAttributeKeyValueRepeat) || [];
-	return matches.reduce((result, attribute) => {
-		const match = reAttributeKeyValueRepeat.exec(attribute);
-		try {
-			const [_all, key, value] = match;
-
-			return {
-				...result,
-				[key]: replaceEntities(value.substr(1, value.length - 2)),
-			};
-		} catch (e) {
-			console.log({ attribute, match, e });
-		}
-	}, {});
-};
-
-const getElement = s => {
+const getElement = (s, options) => {
 	const [_, name, sAttributes] = reElementAttributes.exec(s);
-	const attributes = getAttributes(sAttributes);
+	const attributes = getAttributes(sAttributes, options);
 
 	return {
 		name,
@@ -96,7 +78,7 @@ const getElement = s => {
 
 export const tokenize = xml => xml.match(reTokens);
 
-export const buildHierarchy = (tokens, parents) =>
+export const buildHierarchy = (tokens, parents, { mdx = false } = {}) =>
 	tokens.forEach(token => {
 		const parent = parents[parents.length - 1];
 
@@ -114,11 +96,11 @@ export const buildHierarchy = (tokens, parents) =>
 				// ignore
 			} else if (reSelfClosingTag.test(token)) {
 				// create and move on
-				const tag = getElement(token);
+				const tag = getElement(token, { mdx });
 				parent.children.push(tag);
 			} else {
 				// create and make new parent
-				const tag = getElement(token);
+				const tag = getElement(token, { mdx });
 				parent.children.push(tag);
 				parents.push(tag);
 			}
@@ -127,11 +109,11 @@ export const buildHierarchy = (tokens, parents) =>
 		}
 	});
 
-export const parseTokens = tokens => {
+export const parseTokens = (tokens, options) => {
 	const root = { children: [] };
 	const parents = [root];
 
-	buildHierarchy(tokens, parents);
+	buildHierarchy(tokens, parents, options);
 
 	return root.children;
 };
@@ -149,9 +131,9 @@ export const stripWhitespace = node => {
 	return node;
 };
 
-export const parser = (xml, ignoreWhitespace = false) => {
+export const parser = (xml, ignoreWhitespace = false, options = {}) => {
 	const tokens = tokenize(xml);
-	const parsed = parseTokens(tokens);
+	const parsed = parseTokens(tokens, options);
 	if (ignoreWhitespace) {
 		return parsed.map(stripWhitespace).filter(not(isNull));
 	}

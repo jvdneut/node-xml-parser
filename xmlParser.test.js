@@ -18,7 +18,7 @@ describe('attributeParser', () => {
 	test('Parses ` prop={`hello`}` correctly', () => {
 		const input = ' prop={`hello`}';
 		const expected = { prop: '`hello`' };
-		const actual = getAttributes(input);
+		const actual = getAttributes(input, { mdx: true });
 
 		expect(actual).toEqual(expected);
 	});
@@ -32,7 +32,7 @@ describe('attributeParser', () => {
 			hasSomething: true,
 			className: 'classy',
 		};
-		const actual = getAttributes(input);
+		const actual = getAttributes(input, { mdx: true });
 
 		expect(actual).toEqual(expected);
 	});
@@ -160,7 +160,7 @@ describe('(internal) tokenParser', () => {
 		expect(actual).toEqual(expected);
 	});
 
-	test.skip('Parses `<Component prop={`hello`} hasSomething className="classy">text</Component>` correctly', () => {
+	test('Parses `<Component prop={`hello`} hasSomething className="classy">text</Component>` correctly', () => {
 		const tokens = [
 			'<Component prop={`hello`} other={{ prop: "value" }} hasSomething className="classy">',
 			'text',
@@ -171,14 +171,14 @@ describe('(internal) tokenParser', () => {
 				name: 'Component',
 				attributes: {
 					prop: '`hello`',
-					other: '{{ prop: "value" }}',
+					other: '{ prop: "value" }',
 					hasSomething: true,
 					className: 'classy',
 				},
 				children: ['text'],
 			},
 		];
-		const actual = parseTokens(tokens);
+		const actual = parseTokens(tokens, { mdx: true });
 
 		expect(actual).toEqual(expected);
 	});
