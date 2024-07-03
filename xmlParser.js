@@ -48,8 +48,8 @@ export const replaceEntities = s => s.replace(/&[^;]+;/g, replaceEntity);
 
 export const getAttributes = (s, { jsx = false } = {}) => {
 	const reAttributes = jsx
-		? /\s+([a-z:]+(={[^}]+[}]+|'[^']+'|="[^"]+"|(?=\s+)))/gi
-		: /\s+([a-z:]+(="[^"]+"))/gi;
+		? /\s+([a-z:_]+(={[^}]+[}]+|'[^']+'|="[^"]+"|(?=\s+)))/gi
+		: /\s+([a-z:_]+(="[^"]+"))/gi;
 	const matches = s.match(reAttributes) || [];
 	return matches.reduce((result, attribute) => {
 		let [key, value] = attribute.split('=');

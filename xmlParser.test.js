@@ -5,6 +5,7 @@ import parse, {
 	replaceEntity,
 	replaceEntities,
 	getAttributes,
+	parseJsx,
 } from './xmlParser';
 
 describe('attributeParser', () => {
@@ -18,7 +19,7 @@ describe('attributeParser', () => {
 	test('Parses ` prop={`hello`}` correctly', () => {
 		const input = ' prop={`hello`}';
 		const expected = { prop: '`hello`' };
-		const actual = getAttributes(input, { mdx: true });
+		const actual = getAttributes(input, { jsx: true });
 
 		expect(actual).toEqual(expected);
 	});
@@ -32,7 +33,7 @@ describe('attributeParser', () => {
 			hasSomething: true,
 			className: 'classy',
 		};
-		const actual = getAttributes(input, { mdx: true });
+		const actual = getAttributes(input, { jsx: true });
 
 		expect(actual).toEqual(expected);
 	});
@@ -178,9 +179,29 @@ describe('(internal) tokenParser', () => {
 				children: ['text'],
 			},
 		];
-		const actual = parseTokens(tokens, { mdx: true });
+		const actual = parseTokens(tokens, { jsx: true });
 
 		expect(actual).toEqual(expected);
+	});
+
+	test.only('Parses JSX correctly', () => {
+		const s = `<RelatedCard title="Hoe help je de leerling bij goed onderzoek naar de juiste studiekeuze?" more_text="Lees meer over LOB.online." link="/onderwijs/lob-loopbaanleren" src="~/boy-with-headphones-regular.jpeg" />`;
+		const expected = [
+			{
+				name: 'Component',
+				attributes: {
+					prop: '`hello`',
+					other: '{ prop: "value" }',
+					hasSomething: true,
+					className: 'classy',
+				},
+				children: ['text'],
+			},
+		];
+		const actual = parseJsx(s)
+
+		console.log(actual);
+		//expect(actual).toEqual(expected);
 	});
 });
 
