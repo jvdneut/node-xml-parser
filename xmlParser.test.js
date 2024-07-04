@@ -184,7 +184,7 @@ describe('(internal) tokenParser', () => {
 		expect(actual).toEqual(expected);
 	});
 
-	test.only('Parses JSX correctly', () => {
+	test('Parses JSX correctly', () => {
 		const s = `<RelatedCard title="Hoe help je de leerling bij goed onderzoek naar de juiste studiekeuze?" more_text="Lees meer over LOB.online." link="/onderwijs/lob-loopbaanleren" src="~/boy-with-headphones-regular.jpeg" />`;
 		const expected = [
 			{
@@ -261,6 +261,20 @@ describe('Parser', () => {
 			},
 		];
 		const actual = parse(input);
+
+		expect(actual).toEqual(expected);
+	});
+
+	test('Parses a `<Text center>hello</Text>` correctly', () => {
+		const input = '<Text center>hello</Text>';
+		const expected = [
+			{
+				name: 'Text',
+				attributes: { center: true },
+				children: ['hello'],
+			},
+		];
+		const actual = parseJsx(input);
 
 		expect(actual).toEqual(expected);
 	});
