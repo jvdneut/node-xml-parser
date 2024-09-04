@@ -198,7 +198,7 @@ describe('(internal) tokenParser', () => {
 				children: ['text'],
 			},
 		];
-		const actual = parseJsx(s)
+		const actual = parseJsx(s);
 
 		console.log(actual);
 		//expect(actual).toEqual(expected);
@@ -349,6 +349,34 @@ describe('Entities replacement', () => {
 });
 
 describe('Parse', () => {
+	test('Parses entities in text correctly', () => {
+		const input = '<Text>Hello &amp; world</Text>';
+		const expected = [
+			{
+				name: 'Text',
+				attributes: {},
+				children: ['Hello & world'],
+			},
+		];
+		const actual = parse(input);
+
+		expect(actual).toEqual(expected);
+	});
+
+	test('Parses data-insert-offset attribute correctly', () => {
+		const input = '<Text data-insert-offset="10">Hello world</Text>';
+		const expected = [
+			{
+				name: 'Text',
+				attributes: { 'data-insert-offset': '10' },
+				children: ['Hello world'],
+			},
+		];
+		const actual = parse(input);
+
+		expect(actual).toEqual(expected);
+	});
+
 	test('Namespace prefixes should be handled as other nodes', () => {
 		const input =
 			'<ac:link><ri:attachment ri:filename="Interne audit ISO 27001 AMN 5 juni 2019.xlsx" /><ac:plain-text-link-body><![CDATA[Externe audit ISO 27002 AMN 6 juni 2019]]></ac:plain-text-link-body></ac:link>';
