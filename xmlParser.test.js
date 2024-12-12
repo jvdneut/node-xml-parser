@@ -188,24 +188,41 @@ describe('(internal) tokenParser', () => {
 		const s = `<RelatedCard title="Hoe help je de leerling bij goed onderzoek naar de juiste studiekeuze?" more_text="Lees meer over LOB.online." link="/onderwijs/lob-loopbaanleren" src="~/boy-with-headphones-regular.jpeg" />`;
 		const expected = [
 			{
-				name: 'Component',
+				name: 'RelatedCard',
 				attributes: {
-					prop: '`hello`',
-					other: '{ prop: "value" }',
-					hasSomething: true,
-					className: 'classy',
+					title:
+						'Hoe help je de leerling bij goed onderzoek naar de juiste studiekeuze?',
+					more_text: 'Lees meer over LOB.online.',
+					link: '/onderwijs/lob-loopbaanleren',
+					src: '~/boy-with-headphones-regular.jpeg',
 				},
-				children: ['text'],
+				children: [],
 			},
 		];
 		const actual = parseJsx(s);
 
-		console.log(actual);
-		//expect(actual).toEqual(expected);
+		expect(actual).toEqual(expected);
 	});
 });
 
 describe('Parser', () => {
+	test('Parses a `<key name="eda141c3-bf7c-4e71-bd7c-ea79bdef2856.FIB01" value="=470" />` correctly', () => {
+		const input = '<key name="eda141c3-bf7c-4e71-bd7c-ea79bdef2856.FIB01" value="=470" />';
+		const expected = [
+			{
+				name: 'key',
+				attributes: {
+					name: 'eda141c3-bf7c-4e71-bd7c-ea79bdef2856.FIB01',
+					value: '=470',
+				},
+				children: [],
+			},
+		];
+		const actual = parse(input);
+
+		expect(actual).toEqual(expected);
+	});
+
 	test('Parses a `<br />` correctly', () => {
 		const input = '<br />';
 		const expected = [

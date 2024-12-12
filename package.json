@@ -1,6 +1,6 @@
 {
 	"name": "@jvdneut/xml-parser",
-	"version": "2.0.4",
+	"version": "2.0.5",
 	"type": "module",
 	"main": "xmlParser.js",
 	"author": "Jeroen van der Neut <jeroen@amn.nl>",

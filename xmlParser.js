@@ -54,7 +54,7 @@ export const getAttributes = (s, { jsx = false } = {}) => {
 		: /\s+([a-z:_-]+(="[^"]+"))/gi;
 	const matches = s.match(reAttributes) || [];
 	return matches.reduce((result, attribute) => {
-		let [key, value] = attribute.split('=');
+		let [key, value] = attribute.split(/=(.+)/);
 		key = key.trim();
 		if (!key) {
 			// ignore
