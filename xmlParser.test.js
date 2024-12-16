@@ -39,6 +39,20 @@ describe('attributeParser', () => {
 	});
 });
 describe('(internal) Tokenizer', () => {
+	test('Tokenizes MathML correctly', () => {
+		const input =
+			'<span class="mathjax">(A = left{x in mathbb{R}:|:-17 < x leq 12\right})</span>';
+		const actual = tokenize(input);
+		const expected = [
+			'<span class="mathjax">',
+			'(A = left{x in mathbb{R}:|:-17 ',
+			'<',
+			' x leq 12\right})',
+			'</span>',
+		];
+		expect(actual).toEqual(expected);
+	});
+
 	test('Tokenizes `<br />` correctly', () => {
 		const input = '<br />';
 		const expected = ['<br />'];
@@ -207,7 +221,8 @@ describe('(internal) tokenParser', () => {
 
 describe('Parser', () => {
 	test('Parses a `<key name="eda141c3-bf7c-4e71-bd7c-ea79bdef2856.FIB01" value="=470" />` correctly', () => {
-		const input = '<key name="eda141c3-bf7c-4e71-bd7c-ea79bdef2856.FIB01" value="=470" />';
+		const input =
+			'<key name="eda141c3-bf7c-4e71-bd7c-ea79bdef2856.FIB01" value="=470" />';
 		const expected = [
 			{
 				name: 'key',
@@ -419,6 +434,22 @@ describe('Parse', () => {
 			},
 		];
 
+		expect(actual).toEqual(expected);
+	});
+
+	test('Parses MathML correctly', () => {
+		const input =
+			'<span class="mathjax">(A = left{x in mathbb{R}:|:-17 < x leq 12\right})</span>';
+		const actual = parse(input);
+		const expected = [
+			{
+				name: 'span',
+				attributes: {
+					class: 'mathjax',
+				},
+				children: ['(A = left{x in mathbb{R}:|:-17 < x leq 12\right})'],
+			},
+		];
 		expect(actual).toEqual(expected);
 	});
 });

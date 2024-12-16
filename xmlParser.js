@@ -4,7 +4,7 @@ const not =
 		!fn(...args);
 const isNull = x => x === null;
 
-const reTokens = /<!\[CDATA\[[\S\s]*?\]\]>|[^<>]+|<[^<>]+>/g;
+const reTokens = /<!\[CDATA\[[\S\s]*?\]\]>|[^<>]+|<[^<>]+>|[<>]/g;
 
 const reIsTag = /^<[^<>]+>$/;
 const reSelfClosingTag = /\/>$/;
@@ -107,7 +107,14 @@ export const buildHierarchy = (tokens, parents, options = {}) =>
 				parents.push(tag);
 			}
 		} else {
-			parent.children.push(replaceEntities(token));
+			if (
+				parent.children.length === 1 &&
+				typeof parent.children[0] === 'string'
+			) {
+				parent.children = [`${parent.children[0]}${replaceEntities(token)}`];
+			} else {
+				parent.children.push(replaceEntities(token));
+			}
 		}
 	});
 
