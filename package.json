@@ -1,6 +1,6 @@
 {
 	"name": "@jvdneut/xml-parser",
-	"version": "2.0.6",
+	"version": "2.0.7",
 	"type": "module",
 	"main": "xmlParser.js",
 	"author": "Jeroen van der Neut <jeroen@amn.nl>",
@@ -10,7 +10,7 @@
 		"url": "https://github.com/jvdneut/node-xml-parser"
 	},
 	"devDependencies": {
-		"vitest": "^1.6.0"
+		"vitest": "^2.1.8"
 	},
 	"scripts": {
 		"test": "vitest"
