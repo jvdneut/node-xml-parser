@@ -10,7 +10,7 @@
 		"url": "https://github.com/jvdneut/node-xml-parser"
 	},
 	"devDependencies": {
-		"vitest": "^2.1.8"
+		"vitest": "^3.1.2"
 	},
 	"scripts": {
 		"test": "vitest"

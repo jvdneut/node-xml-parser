@@ -18,7 +18,8 @@ describe('attributeParser', () => {
 	});
 	test('Parses ` prop={`hello`}` correctly', () => {
 		const input = ' prop={`hello`}';
-		const expected = { prop: '`hello`' };
+		//const expected = { prop: '`hello`' };
+		const expected = { prop: 'hello' };
 		const actual = getAttributes(input, { jsx: true });
 
 		expect(actual).toEqual(expected);
@@ -28,8 +29,8 @@ describe('attributeParser', () => {
 		const input =
 			' prop={`hello`} other={{ prop: "value" }} hasSomething className="classy"';
 		const expected = {
-			prop: '`hello`',
-			other: `{ prop: "value" }`,
+			prop: 'hello',
+			other: { prop: 'value' },
 			hasSomething: true,
 			className: 'classy',
 		};
@@ -185,8 +186,8 @@ describe('(internal) tokenParser', () => {
 			{
 				name: 'Component',
 				attributes: {
-					prop: '`hello`',
-					other: '{ prop: "value" }',
+					prop: 'hello',
+					other: { prop: 'value' },
 					hasSomething: true,
 					className: 'classy',
 				},
@@ -448,6 +449,32 @@ describe('Parse', () => {
 					class: 'mathjax',
 				},
 				children: ['(A = left{x in mathbb{R}:|:-17 < x leq 12\right})'],
+			},
+		];
+		expect(actual).toEqual(expected);
+	});
+
+	test('Parses array attribute correctly', () => {
+		const input = `<Card
+	mediaType="slideshow"
+	images={[
+		'~/screenshots/screenshot-1.png',
+		'~/screenshots/screenshot-2.png',
+	]}
+>test</Card>`;
+
+		const actual = parseJsx(input);
+		const expected = [
+			{
+				name: 'Card',
+				attributes: {
+					mediaType: 'slideshow',
+					images: [
+						'~/screenshots/screenshot-1.png',
+						'~/screenshots/screenshot-2.png',
+					],
+				},
+				children: ['test'],
 			},
 		];
 		expect(actual).toEqual(expected);

@@ -54,12 +54,27 @@ export const getAttributes = (s, { jsx = false } = {}) => {
 		: /\s+([a-z:_-]+(="[^"]+"))/gi;
 	const matches = s.match(reAttributes) || [];
 	return matches.reduce((result, attribute) => {
-		let [key, value] = attribute.split(/=(.+)/);
+		let [key, value] = attribute.split(/=([\S\s]+)/);
 		key = key.trim();
+		//console.log({ key, value });
 		if (!key) {
 			// ignore
 		} else if (typeof value === 'undefined') {
 			result[key] = true;
+		} else if (value[0] === '{') {
+			value = value.substring(1, value.length - 1);
+			value = value.replace(/,(\s*[\]\}])/g, '$1');
+			value = value.replace(
+				/(['`])(.+?)\1/g,
+				(_, quote, s) => `"${s.replace(/"/g, '\\"')}"`,
+			);
+			value = value.replace(/([a-z_0-9]+):/gi, '"$1":');
+			try {
+				value = JSON.parse(value);
+			} catch (e) {
+				//console.error('error parsing', value);
+			}
+			result[key] = value;
 		} else {
 			result[key] = replaceEntities(value.substring(1, value.length - 1));
 		}
