@@ -119,7 +119,9 @@ export const buildHierarchy = (tokens, parents, options = {}) =>
 				// create and make new parent
 				const tag = getElement(token, options);
 				parent.children.push(tag);
-				parents.push(tag);
+				if (!options.selfClosing || !options.selfClosing[tag.name]) {
+					parents.push(tag);
+				}
 			}
 		} else {
 			if (
