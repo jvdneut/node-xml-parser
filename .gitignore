@@ -1,2 +1,5 @@
 node_modules/
 *.swp
+dist/
+dist-test/
+*.tsbuildinfo

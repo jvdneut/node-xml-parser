@@ -6,12 +6,13 @@ import parse, {
 	replaceEntities,
 	getAttributes,
 	parseJsx,
-} from './xmlParser';
+} from './src/xmlParser.js';
+import type { XmlNode, XmlAttributes } from './src/types.js';
 
 describe('attributeParser', () => {
 	test('Parses ` className="classy"` correctly', () => {
 		const input = ' className="classy"';
-		const expected = { className: 'classy' };
+		const expected: XmlAttributes = { className: 'classy' };
 		const actual = getAttributes(input);
 
 		expect(actual).toEqual(expected);
@@ -19,7 +20,7 @@ describe('attributeParser', () => {
 	test('Parses ` prop={`hello`}` correctly', () => {
 		const input = ' prop={`hello`}';
 		//const expected = { prop: '`hello`' };
-		const expected = { prop: 'hello' };
+		const expected: XmlAttributes = { prop: 'hello' };
 		const actual = getAttributes(input, { jsx: true });
 
 		expect(actual).toEqual(expected);
@@ -28,7 +29,7 @@ describe('attributeParser', () => {
 	test('Parses ` prop={`hello`} other={{ prop: "value" }} hasSomething className="classy"` correctly', () => {
 		const input =
 			' prop={`hello`} other={{ prop: "value" }} hasSomething className="classy"';
-		const expected = {
+		const expected: XmlAttributes = {
 			prop: 'hello',
 			other: { prop: 'value' },
 			hasSomething: true,
@@ -112,7 +113,7 @@ describe('(internal) Tokenizer', () => {
 describe('(internal) tokenParser', () => {
 	test('Parses a `<br />` correctly', () => {
 		const tokens = ['<br />'];
-		const expected = [
+		const expected: XmlNode[] = [
 			{
 				name: 'br',
 				attributes: {},
@@ -126,7 +127,7 @@ describe('(internal) tokenParser', () => {
 
 	test('Parses a `hello<br />world` correctly', () => {
 		const tokens = ['hello', '<br />', 'world'];
-		const expected = [
+		const expected: (string | XmlNode)[] = [
 			'hello',
 			{
 				name: 'br',
@@ -150,7 +151,7 @@ describe('(internal) tokenParser', () => {
 			'</span>',
 			'</span>',
 		];
-		const expected = [
+		const expected: XmlNode[] = [
 			{
 				name: 'span',
 				attributes: { class: 'outer' },
@@ -182,7 +183,7 @@ describe('(internal) tokenParser', () => {
 			'text',
 			'</Component>',
 		];
-		const expected = [
+		const expected: XmlNode[] = [
 			{
 				name: 'Component',
 				attributes: {
@@ -201,7 +202,7 @@ describe('(internal) tokenParser', () => {
 
 	test('Parses JSX correctly', () => {
 		const s = `<RelatedCard title="Hoe help je de leerling bij goed onderzoek naar de juiste studiekeuze?" more_text="Lees meer over LOB.online." link="/onderwijs/lob-loopbaanleren" src="~/boy-with-headphones-regular.jpeg" />`;
-		const expected = [
+		const expected: XmlNode[] = [
 			{
 				name: 'RelatedCard',
 				attributes: {
@@ -224,7 +225,7 @@ describe('Parser', () => {
 	test('Parses a `<key name="eda141c3-bf7c-4e71-bd7c-ea79bdef2856.FIB01" value="=470" />` correctly', () => {
 		const input =
 			'<key name="eda141c3-bf7c-4e71-bd7c-ea79bdef2856.FIB01" value="=470" />';
-		const expected = [
+		const expected: XmlNode[] = [
 			{
 				name: 'key',
 				attributes: {
@@ -241,7 +242,7 @@ describe('Parser', () => {
 
 	test('Parses a `<br />` correctly', () => {
 		const input = '<br />';
-		const expected = [
+		const expected: XmlNode[] = [
 			{
 				name: 'br',
 				attributes: {},
@@ -255,7 +256,7 @@ describe('Parser', () => {
 
 	test('Parses a `hello<br />world` correctly', () => {
 		const input = 'hello<br />world';
-		const expected = [
+		const expected: (string | XmlNode)[] = [
 			'hello',
 			{
 				name: 'br',
@@ -272,7 +273,7 @@ describe('Parser', () => {
 	test('Parses a `<span class="outer"><span class="inner">hello<br />world</span></span>` correctly', () => {
 		const input =
 			'<span class="outer"><span class="inner">hello<br />world</span></span>';
-		const expected = [
+		const expected: XmlNode[] = [
 			{
 				name: 'span',
 				attributes: { class: 'outer' },
@@ -300,7 +301,7 @@ describe('Parser', () => {
 
 	test('Parses a `<Text center>hello</Text>` correctly', () => {
 		const input = '<Text center>hello</Text>';
-		const expected = [
+		const expected: XmlNode[] = [
 			{
 				name: 'Text',
 				attributes: { center: true },
@@ -384,7 +385,7 @@ describe('Entities replacement', () => {
 describe('Parse', () => {
 	test('Parses entities in text correctly', () => {
 		const input = '<Text>Hello &amp; world</Text>';
-		const expected = [
+		const expected: XmlNode[] = [
 			{
 				name: 'Text',
 				attributes: {},
@@ -398,7 +399,7 @@ describe('Parse', () => {
 
 	test('Parses data-insert-offset attribute correctly', () => {
 		const input = '<Text data-insert-offset="10">Hello world</Text>';
-		const expected = [
+		const expected: XmlNode[] = [
 			{
 				name: 'Text',
 				attributes: { 'data-insert-offset': '10' },
@@ -414,7 +415,7 @@ describe('Parse', () => {
 		const input =
 			'<ac:link><ri:attachment ri:filename="Interne audit ISO 27001 AMN 5 juni 2019.xlsx" /><ac:plain-text-link-body><![CDATA[Externe audit ISO 27002 AMN 6 juni 2019]]></ac:plain-text-link-body></ac:link>';
 		const actual = parse(input);
-		const expected = [
+		const expected: XmlNode[] = [
 			{
 				attributes: {},
 				children: [
@@ -442,7 +443,7 @@ describe('Parse', () => {
 		const input =
 			'<span class="mathjax">(A = left{x in mathbb{R}:|:-17 < x leq 12\right})</span>';
 		const actual = parse(input);
-		const expected = [
+		const expected: XmlNode[] = [
 			{
 				name: 'span',
 				attributes: {
@@ -464,7 +465,7 @@ describe('Parse', () => {
 >test</Card>`;
 
 		const actual = parseJsx(input);
-		const expected = [
+		const expected: XmlNode[] = [
 			{
 				name: 'Card',
 				attributes: {
