@@ -62,6 +62,14 @@ describe('(internal) Tokenizer', () => {
 		expect(actual).toEqual(expected);
 	});
 
+	test('Tokenizes comments correctly', () => {
+		const input = '<br /><!-- comment <div>hello</div> -->';
+		const expected = ['<br />', '<!-- comment <div>hello</div> -->'];
+		const actual = tokenize(input);
+
+		expect(actual).toEqual(expected);
+	});
+
 	test('Tokenizes `hello<br />world` correctly', () => {
 		const input = 'hello<br />world';
 		const expected = ['hello', '<br />', 'world'];
@@ -246,6 +254,21 @@ describe('Parser', () => {
 				name: 'br',
 				attributes: {},
 				children: [],
+			},
+		];
+		const actual = parse(input);
+
+		expect(actual).toEqual(expected);
+	});
+
+	test('Parses comments correctly', () => {
+		const input = '<br /><!-- comment <div>hello</div> -->';
+		const expected = [
+			{ name: 'br', attributes: {}, children: [] },
+			{
+				name: '#comment',
+				attributes: {},
+				children: [' comment <div>hello</div> '],
 			},
 		];
 		const actual = parse(input);

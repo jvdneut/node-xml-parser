@@ -4,13 +4,15 @@ const not =
 		!fn(...args);
 const isNull = x => x === null;
 
-const reTokens = /<!\[CDATA\[[\S\s]*?\]\]>|[^<>]+|<[^<>]+>|[<>]/g;
+const reTokens =
+	/<!--[\S\s]*?-->|<!\[CDATA\[[\S\s]*?\]\]>|[^<>]+|<[^<>]+>|[<>]/g;
 
 const reIsTag = /^<[^<>]+>$/;
 const reSelfClosingTag = /\/>$/;
 const reClosingTag = /^<\//;
 
 const reIsCData = /^<!\[CDATA\[([\S\s]*?)\]\]>$/;
+const reIsComment = /^<!--([\S\s]*?)-->$/;
 const reElementAttributes = /<\/?(\S+)([^<>]*?)\/?>/i;
 const reIsWhiteSpace = /^\s*$/;
 
@@ -99,7 +101,15 @@ export const buildHierarchy = (tokens, parents, options = {}) =>
 	tokens.forEach(token => {
 		const parent = parents[parents.length - 1];
 
-		if (reIsCData.test(token)) {
+		if (reIsComment.test(token)) {
+			// treat as text
+			const text = reIsComment.exec(token)[1];
+			parent.children.push({
+				name: '#comment',
+				attributes: {},
+				children: [text],
+			});
+		} else if (reIsCData.test(token)) {
 			// treat as text
 			const text = reIsCData.exec(token)[1];
 			parent.children.push(text);
@@ -146,22 +156,22 @@ export const parseTokens = (tokens, options) => {
 
 export const stripWhitespace = node => {
 	if (typeof node === 'string' && reIsWhiteSpace.test(node)) {
-		return null;
+		return [];
 	} else if (node.children) {
 		return {
 			...node,
-			children: node.children.map(stripWhitespace).filter(not(isNull)),
+			children: node.children.flatMap(stripWhitespace),
 		};
 	}
 
-	return node;
+	return [node];
 };
 
 export const parser = (xml, ignoreWhitespace = false, options = {}) => {
 	const tokens = tokenize(xml);
 	const parsed = parseTokens(tokens, options);
 	if (ignoreWhitespace) {
-		return parsed.map(stripWhitespace).filter(not(isNull));
+		return parsed.flatMap(stripWhitespace);
 	}
 	return parsed;
 };
